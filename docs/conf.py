@@ -11,7 +11,7 @@ templates_path = ['_templates']
 source_suffix = '.rst'
 master_doc = 'index'
 project = 'ib_insync'
-copyright = '2021, Ewald de Wit'
+copyright = '2023, Ewald de Wit'
 author = 'Ewald de Wit'
 
 __version__ = ''
@@ -19,7 +19,7 @@ exec(open('../ib_insync/version.py').read())
 version = '.'.join(__version__.split('.')[:2])
 release = __version__
 
-language = None
+language = 'en'
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 pygments_style = 'sphinx'
 todo_include_todos = False
@@ -46,8 +46,8 @@ intersphinx_mapping = {
 github_url = 'https://github.com/erdewit/ib_insync'
 
 extlinks = {
-    'issue': ('https://github.com/erdewit/ib_insync/issues/%s', 'issue '),
-    'pull': ('https://github.com/erdewit/ib_insync/pull/%s', 'pull '),
+    'issue': ('https://github.com/erdewit/ib_insync/issues/%s', 'issue %s'),
+    'pull': ('https://github.com/erdewit/ib_insync/pull/%s', 'pull %s'),
 }
 
 autoclass_content = 'both'

@@ -4,6 +4,8 @@ import asyncio
 
 from eventkit import Event
 
+from ib_insync.util import getLoop
+
 
 class Connection(asyncio.Protocol):
     """
@@ -33,7 +35,7 @@ class Connection(asyncio.Protocol):
             self.disconnect()
             await self.disconnected
         self.reset()
-        loop = asyncio.get_event_loop()
+        loop = getLoop()
         self.transport, _ = await loop.create_connection(
             lambda: self, host, port)
 
@@ -46,9 +48,10 @@ class Connection(asyncio.Protocol):
         return self.transport is not None
 
     def sendMsg(self, msg):
-        self.transport.write(msg)
-        self.numBytesSent += len(msg)
-        self.numMsgSent += 1
+        if self.transport:
+            self.transport.write(msg)
+            self.numBytesSent += len(msg)
+            self.numMsgSent += 1
 
     def connection_lost(self, exc):
         self.transport = None

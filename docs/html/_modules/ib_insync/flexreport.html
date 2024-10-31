@@ -1,71 +1,34 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <title>ib_insync.flexreport &mdash; ib_insync 0.9.67 documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-
-  
-  
-  
-  
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ib_insync.flexreport &mdash; ib_insync 0.9.81 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
     <link rel="canonical" href="https://ib_insync.readthedocs.io_modules/ib_insync/flexreport.html"/>
   
-
-  
-  <!--[if lt IE 9]>
-    <script src="../../_static/js/html5shiv.min.js"></script>
-  <![endif]-->
-  
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
         <script src="../../_static/jquery.js"></script>
         <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../_static/doctools.js"></script>
-    
-    <script type="text/javascript" src="../../_static/js/theme.js"></script>
-
-    
+        <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
-            <a href="../../index.html" class="icon icon-home" alt="Documentation Home"> ib_insync
-          
-
-          
+            <a href="../../index.html" class="icon icon-home"> ib_insync
           </a>
-
-          
-            
-            
               <div class="version">
                 0.9
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -73,18 +36,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../readme.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../api.html">API docs</a></li>
@@ -95,67 +47,30 @@
 <li class="toctree-l1"><a class="reference internal" href="../../links.html">Links</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../index.html">ib_insync</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
       <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
-        
           <li><a href="../index.html">Module code</a> &raquo;</li>
-        
       <li>ib_insync.flexreport</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   <h1>Source code for ib_insync.flexreport</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Access to account statement webservice.&quot;&quot;&quot;</span>
 
@@ -168,8 +83,6 @@
 <span class="kn">from</span> <span class="nn">ib_insync</span> <span class="kn">import</span> <span class="n">util</span>
 <span class="kn">from</span> <span class="nn">ib_insync.objects</span> <span class="kn">import</span> <span class="n">DynamicObject</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;FlexReport&#39;</span><span class="p">,</span> <span class="s1">&#39;FlexError&#39;</span><span class="p">)</span>
-
 <span class="n">_logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;ib_insync.flexreport&#39;</span><span class="p">)</span>
 
 
@@ -179,20 +92,22 @@
 
 <div class="viewcode-block" id="FlexReport"><a class="viewcode-back" href="../../api.html#ib_insync.flexreport.FlexReport">[docs]</a><span class="k">class</span> <span class="nc">FlexReport</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Download and parse IB account statements via the Flex Web Service.</span>
-<span class="sd">    https://www.interactivebrokers.com/en/software/am/am/reports/flex_web_service_version_3.htm</span>
+<span class="sd">    To obtain a token:</span>
 
-<span class="sd">    A large query can take a few minutes. In the weekends the query servers</span>
-<span class="sd">    can be down.</span>
+<span class="sd">    * Login to web portal</span>
+<span class="sd">    * Go to Settings</span>
+<span class="sd">    * Click on &quot;Configure Flex Web Service&quot;</span>
+<span class="sd">    * Generate token</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span>
+    <span class="n">root</span><span class="p">:</span> <span class="n">et</span><span class="o">.</span><span class="n">Element</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">token</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">queryId</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Download a report by giving a valid ``token`` and ``queryId``,</span>
 <span class="sd">        or load from file by giving a valid ``path``.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">token</span> <span class="ow">and</span> <span class="n">queryId</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="n">token</span><span class="p">,</span> <span class="n">queryId</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">path</span><span class="p">:</span>
@@ -234,13 +149,20 @@
         <span class="n">data</span> <span class="o">=</span> <span class="n">resp</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
 
         <span class="n">root</span> <span class="o">=</span> <span class="n">et</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">root</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;Status&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span> <span class="o">==</span> <span class="s1">&#39;Success&#39;</span><span class="p">:</span>
-            <span class="n">code</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;ReferenceCode&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
-            <span class="n">baseUrl</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;Url&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
+        <span class="n">elem</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;Status&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">elem</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">elem</span><span class="o">.</span><span class="n">text</span> <span class="o">==</span> <span class="s1">&#39;Success&#39;</span><span class="p">:</span>
+            <span class="n">elem</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;ReferenceCode&#39;</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">elem</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="n">code</span> <span class="o">=</span> <span class="n">elem</span><span class="o">.</span><span class="n">text</span>
+            <span class="n">elem</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;Url&#39;</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">elem</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="n">baseUrl</span> <span class="o">=</span> <span class="n">elem</span><span class="o">.</span><span class="n">text</span>
             <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Statement is being prepared...&#39;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">errorCode</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;ErrorCode&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
-            <span class="n">errorMsg</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;ErrorMessage&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
+            <span class="n">elem</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;ErrorCode&#39;</span><span class="p">)</span>
+            <span class="n">errorCode</span> <span class="o">=</span> <span class="n">elem</span><span class="o">.</span><span class="n">text</span> <span class="k">if</span> <span class="n">elem</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
+            <span class="n">elem</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;ErrorMessage&#39;</span><span class="p">)</span>
+            <span class="n">errorMsg</span> <span class="o">=</span> <span class="n">elem</span><span class="o">.</span><span class="n">text</span> <span class="k">if</span> <span class="n">elem</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
             <span class="k">raise</span> <span class="n">FlexError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">errorCode</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">errorMsg</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
         <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
@@ -251,7 +173,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="o">=</span> <span class="n">et</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s1">&#39;code&#39;</span><span class="p">:</span>
                 <span class="n">msg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">text</span>
-                <span class="k">if</span> <span class="n">msg</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;Statement generation in progress&#39;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">msg</span> <span class="ow">and</span> <span class="n">msg</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;Statement generation in progress&#39;</span><span class="p">):</span>
                     <span class="n">_logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;still working...&#39;</span><span class="p">)</span>
                     <span class="k">continue</span>
                 <span class="k">else</span><span class="p">:</span>
@@ -280,49 +202,30 @@
 </pre></div>
 
            </div>
-           
           </div>
           <footer>
-  
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        
-        &copy; Copyright 2021, Ewald de Wit
-
-    </p>
+    <p>&#169; Copyright 2023, Ewald de Wit.</p>
   </div>
-    
-    
-    
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
-    
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
-
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

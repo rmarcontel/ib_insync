@@ -13,8 +13,6 @@ from ib_insync.objects import (
     TickData)
 from ib_insync.util import dataclassRepr, isNan
 
-__all__ = ['Ticker']
-
 nan = float('nan')
 
 
@@ -46,12 +44,16 @@ class Ticker:
     contract: Optional[Contract] = None
     time: Optional[datetime] = None
     marketDataType: int = 1
+    minTick: float = nan
     bid: float = nan
     bidSize: float = nan
+    bidExchange: str = ''
     ask: float = nan
     askSize: float = nan
+    askExchange: str = ''
     last: float = nan
     lastSize: float = nan
+    lastExchange: str = ''
     prevBid: float = nan
     prevBidSize: float = nan
     prevAsk: float = nan
@@ -109,6 +111,9 @@ class Ticker:
     auctionVolume: float = nan
     auctionPrice: float = nan
     auctionImbalance: float = nan
+    regulatoryImbalance: float = nan
+    bboExchange: str = ''
+    snapshotPermissions: int = 0
 
     def __post_init__(self):
         self.updateEvent = TickerUpdateEvent('updateEvent')
@@ -139,15 +144,16 @@ class Ticker:
         """
         Return the first available one of
 
-        * last price if within current bid/ask;
-        * average of bid and ask (midpoint);
-        * close price.
+        * last price if within current bid/ask or no bid/ask available;
+        * average of bid and ask (midpoint).
         """
-        price = self.last if (
-            self.hasBidAsk() and self.bid <= self.last <= self.ask) else \
-            self.midpoint()
-        if isNan(price):
-            price = self.close
+        if self.hasBidAsk():
+            if self.bid <= self.last <= self.ask:
+                price = self.last
+            else:
+                price = self.midpoint()
+        else:
+            price = self.last
         return price
 
 
@@ -215,6 +221,19 @@ class Tickfilter(Op):
             count: Number of ticks to use to form one bar.
         """
         return TickBars(count, self)
+
+    def volumebars(self, volume: int) -> "VolumeBars":
+        """
+        Aggregate ticks into bars that have the same volume.
+        Emits a completed :class:`Bar`.
+
+        This event stores a :class:`BarList` of all created bars in the
+        ``bars`` property.
+
+        Args:
+            count: Number of ticks to use to form one bar.
+        """
+        return VolumeBars(volume, self)
 
 
 class Midpoints(Tickfilter):
@@ -312,5 +331,32 @@ class TickBars(Op):
             bar.volume += size
             bar.count += 1
         if bar.count == self._count:
+            self.bars.updateEvent.emit(self.bars, True)
+            self.emit(self.bars)
+
+
+class VolumeBars(Op):
+    __slots__ = ('_volume', 'bars')
+    __doc__ = Tickfilter.volumebars.__doc__
+
+    bars: BarList
+
+    def __init__(self, volume, source=None):
+        Op.__init__(self, source)
+        self._volume = volume
+        self.bars = BarList()
+
+    def on_source(self, time, price, size):
+        if not self.bars or self.bars[-1].volume >= self._volume:
+            bar = Bar(time, price, price, price, price, size, 1)
+            self.bars.append(bar)
+        else:
+            bar = self.bars[-1]
+            bar.high = max(bar.high, price)
+            bar.low = min(bar.low, price)
+            bar.close = price
+            bar.volume += size
+            bar.count += 1
+        if bar.volume >= self._volume:
             self.bars.updateEvent.emit(self.bars, True)
             self.emit(self.bars)

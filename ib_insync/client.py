@@ -3,20 +3,19 @@
 import asyncio
 import io
 import logging
+import math
 import struct
 import time
 from collections import deque
-from typing import List, Optional
+from typing import Deque, List, Optional
 
 from eventkit import Event
 
 from .connection import Connection
 from .contract import Contract
 from .decoder import Decoder
-from .objects import ConnectionStats
-from .util import UNSET_DOUBLE, UNSET_INTEGER, dataclassAsTuple, run
-
-__all__ = ['Client']
+from .objects import ConnectionStats, WshEventData
+from .util import UNSET_DOUBLE, UNSET_INTEGER, dataclassAsTuple, getLoop, run
 
 
 class Client:
@@ -61,7 +60,7 @@ class Client:
       A possible use is to write or evaluate the newly arrived data in
       one batch instead of item by item.
 
-    Attributes:
+    Parameters:
       MaxRequests (int):
         Throttle the number of requests to ``MaxRequests`` per
         ``RequestsInterval`` seconds. Set to 0 to disable throttling.
@@ -85,8 +84,8 @@ class Client:
     MaxRequests = 45
     RequestsInterval = 1
 
-    MinClientVersion = 142
-    MaxClientVersion = 163
+    MinClientVersion = 157
+    MaxClientVersion = 178
 
     (DISCONNECTED, CONNECTING, CONNECTED) = range(3)
 
@@ -119,7 +118,7 @@ class Client:
     def reset(self):
         self.connState = Client.DISCONNECTED
         self._apiReady = False
-        self._serverVersion = None
+        self._serverVersion = 0
         self._data = b''
         self._hasReqId = False
         self._reqIdSeq = 0
@@ -128,14 +127,14 @@ class Client:
         self._numBytesRecv = 0
         self._numMsgRecv = 0
         self._isThrottling = False
-        self._msgQ = deque()
-        self._timeQ = deque()
+        self._msgQ: Deque[str] = deque()
+        self._timeQ: Deque[float] = deque()
 
-    def serverVersion(self):
+    def serverVersion(self) -> int:
         return self._serverVersion
 
     def run(self):
-        loop = asyncio.get_event_loop()
+        loop = getLoop()
         loop.run_forever()
 
     def isConnected(self):
@@ -179,7 +178,7 @@ class Client:
 
         Args:
             connectOptions: Use "+PACEAPI" to use request-pacing built
-                into TWS/gateway 974+.
+                into TWS/gateway 974+ (obsolete).
         """
         self.connectOptions = connectOptions.encode()
 
@@ -233,18 +232,23 @@ class Client:
         self.conn.disconnect()
         self.reset()
 
-    def send(self, *fields):
+    def send(self, *fields, makeEmpty=True):
         """Serialize and send the given fields using the IB socket protocol."""
         if not self.isConnected():
             raise ConnectionError('Not connected')
 
         msg = io.StringIO()
+        empty = (None, UNSET_INTEGER, UNSET_DOUBLE) if makeEmpty else (None,)
         for field in fields:
             typ = type(field)
-            if field in (None, UNSET_INTEGER, UNSET_DOUBLE):
+            if field in empty:
                 s = ''
-            elif typ in (str, int, float):
+            elif typ is str:
+                s = field
+            elif type is int:
                 s = str(field)
+            elif typ is float:
+                s = 'Infinite' if field == math.inf else str(field)
             elif typ is bool:
                 s = '1' if field else '0'
             elif typ is list:
@@ -264,8 +268,8 @@ class Client:
             msg.write('\0')
         self.sendMsg(msg.getvalue())
 
-    def sendMsg(self, msg):
-        loop = asyncio.get_event_loop()
+    def sendMsg(self, msg: str):
+        loop = getLoop()
         t = loop.time()
         times = self._timeQ
         msgs = self._msgQ
@@ -369,6 +373,7 @@ class Client:
         if msg:
             self._logger.error(msg)
             self.apiError.emit(msg)
+        self.wrapper.setEventsDone()
         if wasReady:
             self.wrapper.connectionClosed()
         self.reset()
@@ -404,11 +409,8 @@ class Client:
 
     def placeOrder(self, orderId, contract, order):
         version = self.serverVersion()
-        fields = [3]
-        if version < 145:
-            fields += [45]
-        fields += [
-            orderId,
+        fields = [
+            3, orderId,
             contract,
             contract.secIdType,
             contract.secId,
@@ -463,8 +465,10 @@ class Client:
             order.goodTillDate,
             order.faGroup,
             order.faMethod,
-            order.faPercentage,
-            order.faProfile,
+            order.faPercentage]
+        if version < 177:
+            fields += [order.faProfile]
+        fields += [
             order.modelCode,
             order.shortSaleSlot,
             order.designatedLocation,
@@ -556,7 +560,7 @@ class Client:
             order.randomizeSize,
             order.randomizePrice]
 
-        if order.orderType == 'PEG BENCH':
+        if order.orderType in ('PEG BENCH', 'PEGBENCH'):
             fields += [
                 order.referenceContractId,
                 order.isPeggedChangeAmountDecrease,
@@ -583,30 +587,45 @@ class Client:
             order.extOperator,
             order.softDollarTier.name,
             order.softDollarTier.val,
-            order.cashQty]
+            order.cashQty,
+            order.mifid2DecisionMaker,
+            order.mifid2DecisionAlgo,
+            order.mifid2ExecutionTrader,
+            order.mifid2ExecutionAlgo,
+            order.dontUseAutoPriceForHedge,
+            order.isOmsContainer,
+            order.discretionaryUpToLimitPrice,
+            order.usePriceMgmtAlgo]
 
-        if version >= 138:
-            fields += [order.mifid2DecisionMaker, order.mifid2DecisionAlgo]
-        if version >= 139:
-            fields += [order.mifid2ExecutionTrader, order.mifid2ExecutionAlgo]
-        if version >= 141:
-            fields += [order.dontUseAutoPriceForHedge]
-        if version >= 145:
-            fields += [order.isOmsContainer]
-        if version >= 148:
-            fields += [order.discretionaryUpToLimitPrice]
-        if version >= 151:
-            fields += [order.usePriceMgmtAlgo]
         if version >= 158:
             fields += [order.duration]
         if version >= 160:
             fields += [order.postToAts]
         if version >= 162:
             fields += [order.autoCancelParent]
+        if version >= 166:
+            fields += [order.advancedErrorOverride]
+        if version >= 169:
+            fields += [order.manualOrderTime]
+        if version >= 170:
+            if contract.exchange == 'IBKRATS':
+                fields += [order.minTradeQty]
+            if order.orderType in ('PEG BEST', 'PEGBEST'):
+                fields += [
+                    order.minCompeteSize,
+                    order.competeAgainstBestOffset]
+                if order.competeAgainstBestOffset == math.inf:
+                    fields += [order.midOffsetAtWhole, order.midOffsetAtHalf]
+            elif order.orderType in ('PEG MID', 'PEGMID'):
+                fields += [order.midOffsetAtWhole, order.midOffsetAtHalf]
+
         self.send(*fields)
 
-    def cancelOrder(self, orderId):
-        self.send(4, 1, orderId)
+    def cancelOrder(self, orderId, manualCancelOrderTime=''):
+        fields = [4, 1, orderId]
+        if self.serverVersion() >= 169:
+            fields += [manualCancelOrderTime]
+        self.send(*fields)
 
     def reqOpenOrders(self):
         self.send(5, 1)
@@ -629,14 +648,19 @@ class Client:
         self.send(8, 1, numIds)
 
     def reqContractDetails(self, reqId, contract):
-        self.send(
-            9, 8, reqId, contract, contract.includeExpired,
-            contract.secIdType, contract.secId)
+        fields = [
+            9, 8, reqId,
+            contract,
+            contract.includeExpired,
+            contract.secIdType,
+            contract.secId]
+        if self.serverVersion() >= 176:
+            fields += [contract.issuerId]
+        self.send(*fields)
 
     def reqMktDepth(
             self, reqId, contract, numRows, isSmartDepth, mktDepthOptions):
-        version = self.serverVersion()
-        fields = [
+        self.send(
             10, 5, reqId,
             contract.conId,
             contract.symbol,
@@ -645,18 +669,14 @@ class Client:
             contract.strike,
             contract.right,
             contract.multiplier,
-            contract.exchange]
-        if version >= 149:
-            fields += [contract.primaryExchange]
-        fields += [
+            contract.exchange,
+            contract.primaryExchange,
             contract.currency,
             contract.localSymbol,
             contract.tradingClass,
-            numRows]
-        if version >= 146:
-            fields += [isSmartDepth]
-        fields += [mktDepthOptions]
-        self.send(*fields)
+            numRows,
+            isSmartDepth,
+            mktDepthOptions)
 
     def cancelMktDepth(self, reqId, isSmartDepth):
         self.send(11, 1, reqId, isSmartDepth)
@@ -683,10 +703,7 @@ class Client:
         self.send(18, 1, faData)
 
     def replaceFA(self, reqId, faData, cxml):
-        fields = [19, 1, faData, cxml]
-        if self.serverVersion() >= 157:
-            fields += [reqId]
-        self.send(*fields)
+        self.send(19, 1, faData, cxml, reqId)
 
     def reqHistoricalData(
             self, reqId, contract, endDateTime, durationStr, barSizeSetting,
@@ -726,13 +743,9 @@ class Client:
     def reqScannerSubscription(
             self, reqId, subscription, scannerSubscriptionOptions,
             scannerSubscriptionFilterOptions):
-        version = self.serverVersion()
         sub = subscription
-        fields = [22]
-        if version < 143:
-            fields += [4]
-        fields += [
-            reqId,
+        self.send(
+            22, reqId,
             sub.numberOfRows,
             sub.instrument,
             sub.locationCode,
@@ -753,11 +766,9 @@ class Client:
             sub.excludeConvertible,
             sub.averageOptionVolumeAbove,
             sub.scannerSettingPairs,
-            sub.stockTypeFilter]
-        if version >= 143:
-            fields += [scannerSubscriptionFilterOptions]
-        fields += [scannerSubscriptionOptions]
-        self.send(*fields)
+            sub.stockTypeFilter,
+            scannerSubscriptionFilterOptions,
+            scannerSubscriptionOptions)
 
     def cancelScannerSubscription(self, reqId):
         self.send(23, 1, reqId)
@@ -958,3 +969,30 @@ class Client:
 
     def reqCompletedOrders(self, apiOnly):
         self.send(99, apiOnly)
+
+    def reqWshMetaData(self, reqId):
+        self.send(100, reqId)
+
+    def cancelWshMetaData(self, reqId):
+        self.send(101, reqId)
+
+    def reqWshEventData(self, reqId, data: WshEventData):
+        fields = [102, reqId, data.conId]
+        if self.serverVersion() >= 171:
+            fields += [
+                data.filter,
+                data.fillWatchlist,
+                data.fillPortfolio,
+                data.fillCompetitors]
+        if self.serverVersion() >= 173:
+            fields += [
+                data.startDate,
+                data.endDate,
+                data.totalLimit]
+        self.send(*fields, makeEmpty=False)
+
+    def cancelWshEventData(self, reqId):
+        self.send(103, reqId)
+
+    def reqUserInfo(self, reqId):
+        self.send(104, reqId)

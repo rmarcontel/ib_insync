@@ -4,6 +4,127 @@ Changelog
 0.9
 ---
 
+
+Version 0.9.86
+^^^^^^^^^^^^^^
+
+* Fixed: :issue:`588`: Fixed account summary tag.
+* Fixed: :issue:`589`: Fixed more account summary tags.
+* pull:`598`: Year updates
+
+Version 0.9.85
+^^^^^^^^^^^^^^
+ * Fixed: :issue:`586`: Revert socket protocol back to version 176.
+
+Version 0.9.84
+^^^^^^^^^^^^^^
+* Potential fix for ``reqWshEventData``.
+
+Version 0.9.83
+^^^^^^^^^^^^^^
+* Added support for WSH (Wall Street Horizon) requests plus
+  the (blocking) convenience methods ``getWshMetaData`` and ``getWshEventData``.
+* Updated socket protocol to version 177.
+* Added support for ``Event`` security type.
+
+Version 0.9.82
+^^^^^^^^^^^^^^
+
+* Fixed: :issue:`534`: Session parsing for Forex contracts.
+* Fixed: :issue:`536`: Handle empty session field.
+* Fixed: :issue:`541`: Remove superfluous closing bracket.
+* Fixed: :issue:`542`: Use float size for ``pnlSingle``.
+* Fixed: :issue:`544`: Cancel head-time request after completion.
+* Fixed: :issue:`545`: Return ``Trade`` instead of ``Order`` for
+  ``reqOpenOrders`` and ``reqAllOpenOrders``.
+* :pull:`553`: Volume bar added.
+* :pull:`565`: Typo fix.
+
+Version 0.9.81
+^^^^^^^^^^^^^^
+
+* Add ``ContractDetails.tradingSessions()`` and
+  ``ContractDetails.liquidSessions()`` to parse session times.
+* Fix ``IBC.on2fatimeout`` command line argument for Unix.
+
+Version 0.9.80
+^^^^^^^^^^^^^^
+
+* Fix ``ib.reqMatchingSymbols`` to handle bond contracts.
+
+Version 0.9.79
+^^^^^^^^^^^^^^
+
+* Fix datetime parsing.
+
+Version 0.9.78
+^^^^^^^^^^^^^^
+
+* Added ``account`` parameter to ``ib.portfolio()``.
+* Added ``IBC.on2fatimeout`` field.
+* Removed obsolete ``IBController``.
+* Fixed: :issue:`530`: Use explicit timezone in requests as per new API requirement.
+
+Version 0.9.77
+^^^^^^^^^^^^^^
+
+* :pull:`528`: Fixes regression in ``client.py``.
+
+Version 0.9.76
+^^^^^^^^^^^^^^
+
+* Fixed: :issue:`525`: For ``whatIf`` request treat error 110 as failure.
+
+Version 0.9.75
+^^^^^^^^^^^^^^
+
+* Fixed: :issue:`524`: Use fix from Papakipos for issue with ``FlexReport`` downloading.
+
+Version 0.9.74
+^^^^^^^^^^^^^^
+
+* Fix ``reqContractDetails`` bug in combination with latest TWS.
+* Update the code to comply with stricter MyPy checks.
+
+Version 0.9.73
+^^^^^^^^^^^^^^
+
+* :pull:`523`: Fix ``completedOrder`` parsing for new socket protocol.
+
+Version 0.9.72
+^^^^^^^^^^^^^^
+
+* :pull:`507`: Fixes ``bondContractDetails`` request.
+* Fixed: :issue:`502`: Treat error 110 as a warning.
+* Added ``manualOrderTime`` and ``manualCancelOrderTime`` for audit trails.
+* Added ``PEG MID`` and ``PEG BEST`` order types.
+* Added contract fields ``description`` and ``issuerId``.
+* Added ``IB.reqUserInfo()``.
+* Support socket protocol version 176.
+
+Version 0.9.71
+^^^^^^^^^^^^^^
+
+* :pull:`453`: Added support for ``bidExchange`` and ``askExchange`` fields to ``Ticker``.
+* :pull:`489`: ``Watchdog.start()`` now returns a ``Future``.
+* Fixed: :issue:`439`: Set ``marketDataType`` directly on ``Ticker``.
+* Fixed: :issue:`441`: Add explicit timezone of None to accomodate pandas Timestamp.
+* Fixed: :issue:`471`: Revised ``Ticker.marketPrice()`` calculation.
+* Added ``minTick``, ``bboExchange`` and ``snapshotPermissions`` fields to ``Ticker``.
+* Added ``minSize``, ``sizeIncrement`` and ``suggestedSizeIncrement`` fields to ``ContractDetails``.
+* Added ``IB.reqHistoricalSchedule`` request.
+* Added ``IB.reqSmartComponents`` request.
+* Added ``Order.advancedErrorOverride`` field. Any advanced error message is made availble from
+  ``Trade.advancedError``.
+* Added a `recipe for integration with PyGame <https://ib-insync.readthedocs.io/recipes.html#integration-with-pygame>`_.
+* Minimum required TWSAPI client protocol version is 157 now.
+
+Version 0.9.70
+^^^^^^^^^^^^^^
+
+* Fixed: :issue:`413`: Set the appropriate events as done on disconnect.
+* Exported symbols are now static so that the VSCode/PyLance code analyzer can understand it.
+
 Version 0.9.69
 ^^^^^^^^^^^^^^
 
@@ -333,15 +454,18 @@ Version 0.9.28
 
 Version 0.9.27
 ^^^^^^^^^^^^^^
+
 * Fixed bug #77.
 
 Version 0.9.26
 ^^^^^^^^^^^^^^
+
 * PR #74 merged (``ib.reqCurrentTime()`` method added).
 * Fixed bug with order error handling.
 
 Version 0.9.25
 ^^^^^^^^^^^^^^
+
 * Default throttling rate now compatible with reqTickers.
 * Fixed issue with ``ib.waitOnUpdate()`` in combination.
   with ``ib.pendingTickersEvent``.
@@ -349,16 +473,19 @@ Version 0.9.25
 
 Version 0.9.24
 ^^^^^^^^^^^^^^
+
 * ``ticker.futuresOpenInterest`` added.
 * ``execution.time`` was string, is now parsed to UTC datetime.
 * ``ib.reqMarketRule()`` request added.
 
 Version 0.9.23
 ^^^^^^^^^^^^^^
+
 * Compatability with Tornado 5 as used in new Jupyter notebook server.
 
 Version 0.9.22
 ^^^^^^^^^^^^^^
+
 * updated ``ib.reqNewsArticle`` and ``ib.reqHistoricalNews`` to ibapi v9.73.07.
 
 Version 0.9.21
@@ -374,15 +501,18 @@ Version 0.9.20
 
 Version 0.9.19
 ^^^^^^^^^^^^^^
+
 * Don't overwrite ``exchange='SMART'`` in qualifyContracts.
 
 Version 0.9.18
 ^^^^^^^^^^^^^^
+
 * Merged PR #65 (Fix misnamed event).
 
 
 Version 0.9.17
 ^^^^^^^^^^^^^^
+
 * New IB events ``disconnectedEvent``, ``newOrderEvent``, ``orderModifyEvent``
   and ``cancelOrderEvent``.
 * ``Watchdog`` improvements.
@@ -390,6 +520,7 @@ Version 0.9.17
 
 Version 0.9.16
 ^^^^^^^^^^^^^^
+
 * New event system that will supersede ``IB.setCallback()``.
 * Notebooks updated to use events.
 * ``Watchdog`` must now be given an ``IB`` instance.
@@ -545,12 +676,14 @@ Version 0.8.10
 
 Version 0.8.9
 ^^^^^^^^^^^^^
+
 * ``Ticker.vwap`` field added (for use with generic tick 233).
 * Client with master clientId can now monitor orders and trades of
   other clients.
 
 Version 0.8.8
 ^^^^^^^^^^^^^
+
 * ``barUpdate`` event now used also for ``reqRealTimeBars`` responses
 * ``reqRealTimeBars`` will return ``RealTimeBarList`` instead of list.
 * realtime bars example added to bar data notebook.
@@ -558,6 +691,7 @@ Version 0.8.8
 
 Version 0.8.7
 ^^^^^^^^^^^^^
+
 * ``BarDataList`` now used with ``reqHistoricalData``; it also stores
   the request parameters.
 * updated the typing annotations.
@@ -566,16 +700,19 @@ Version 0.8.7
 
 Version 0.8.6
 ^^^^^^^^^^^^^
+
 * ``ticker.marketPrice`` adjusted to ignore price of -1.
 * ``ticker.avVolume`` handling fixed.
 
 Version 0.8.5
 ^^^^^^^^^^^^^
+
 * ``realtimeBar`` wrapper fix.
 * context manager for ``IB`` and ``IB.connect()``.
 
 Version 0.8.4
 ^^^^^^^^^^^^^
+
 * compatibility with upcoming ibapi changes.
 * added ``error`` event to ``IB``.
 * notebooks updated to use ``loopUntil``.
@@ -583,12 +720,14 @@ Version 0.8.4
 
 Version 0.8.3
 ^^^^^^^^^^^^^
+
 * new ``IB.reqHistoricalTicks()`` API method.
 * new ``IB.loopUntil()`` method.
 * fixed issues #4, #6, #7.
 
 Version 0.8.2
 ^^^^^^^^^^^^^
+
 * fixed swapped ``ticker.putOpenInterest`` vs ``ticker.callOpenInterest``.
 
 Version 0.8.1
